@@ -105,6 +105,32 @@ def test_binop() -> None:
     assert channel.get() == 10
 
 
+
+def test_binop_overwrite_then_regular_raises() -> None:
+    """Regular update after Overwrite in the same super-step must raise InvalidUpdateError.
+
+    Previously the regular value was silently dropped (issue #7580).
+    """
+    channel = BinaryOperatorAggregate(int, operator.add).from_checkpoint(MISSING)
+    channel.update([0])  # set initial value
+
+    # Overwrite alone is fine.
+    channel.update([Overwrite(10)])
+    assert channel.get() == 10
+
+    # Regular update alone is fine.
+    channel.update([5])
+    assert channel.get() == 15
+
+    # Overwrite followed by a regular value must be rejected, not silently dropped.
+    with pytest.raises(InvalidUpdateError):
+        channel.update([Overwrite(20), 3])
+
+    # Order reversed: regular first, then Overwrite — currently allowed (Overwrite wins)
+    # so this should NOT raise.
+    channel.update([3, Overwrite(99)])
+    assert channel.get() == 99
+
 def test_untracked_value() -> None:
     channel = UntrackedValue(dict).from_checkpoint(MISSING)
     assert channel.ValueType is dict
