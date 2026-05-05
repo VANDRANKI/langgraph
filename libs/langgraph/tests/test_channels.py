@@ -6,10 +6,10 @@ import pytest
 from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.serde.types import _DeltaSnapshot
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import NotRequired, Required, TypedDict
 
 from langgraph._internal._typing import MISSING
-from langgraph.channels.binop import BinaryOperatorAggregate
+from langgraph.channels.binop import BinaryOperatorAggregate, _strip_extras
 from langgraph.channels.delta import DeltaChannel
 from langgraph.channels.last_value import LastValue
 from langgraph.channels.topic import Topic
@@ -104,6 +104,29 @@ def test_binop() -> None:
     channel = BinaryOperatorAggregate(int, operator.add).from_checkpoint(checkpoint)
     assert channel.get() == 10
 
+
+
+def test_strip_extras_required_not_required() -> None:
+    """_strip_extras must unwrap Required/NotRequired correctly.
+
+    In some Python/typing_extensions combinations Required[X] has no __origin__
+    attribute, so the old hasattr-based check returned the wrapper unchanged
+    (issue #7578). get_origin()/get_args() fix this.
+    """
+    # Plain type: unchanged
+    assert _strip_extras(int) is int
+
+    # Required[X] -> X
+    assert _strip_extras(Required[int]) is int
+
+    # NotRequired[X] -> X
+    assert _strip_extras(NotRequired[int]) is int
+
+    # Required[Annotated[int, operator.add]] -> int (double unwrap)
+    assert _strip_extras(Required[Annotated[int, operator.add]]) is int
+
+    # NotRequired[Annotated[int, operator.add]] -> int
+    assert _strip_extras(NotRequired[Annotated[int, operator.add]]) is int
 
 def test_untracked_value() -> None:
     channel = UntrackedValue(dict).from_checkpoint(MISSING)
