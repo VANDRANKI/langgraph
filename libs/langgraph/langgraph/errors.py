@@ -54,8 +54,26 @@ class GraphDrained(GraphBubbleUp):
     """Raised when a graph run exits early due to a drain request.
 
     This indicates the graph stopped cooperatively at a superstep boundary
-    because `RunControl.request_drain()` was called (e.g., in response to
-    SIGTERM). The checkpoint is saved and the run can be resumed later.
+    because ``RunControl.request_drain()`` was called (e.g., in response to
+    ``SIGTERM``). The checkpoint is saved at the point of interruption so the
+    run can be resumed later without loss of progress.
+
+    Args:
+        reason: A short human-readable description of why the drain was
+            requested. Defaults to ``"shutdown"``.
+
+    Attributes:
+        reason: The reason string passed at construction time.
+
+    Example::
+
+        import signal
+        from langgraph.runtime import RunControl
+
+        def handle_sigterm(sig, frame):
+            run_control.request_drain()
+
+        signal.signal(signal.SIGTERM, handle_sigterm)
     """
 
     def __init__(self, reason: str = "shutdown") -> None:
@@ -167,12 +185,44 @@ class NodeError:
 class NodeTimeoutError(Exception):
     """Raised when a node invocation exceeds one of its configured timeouts.
 
-    Does **not** inherit from the built-in `TimeoutError` (a subclass of
-    `OSError`) so that the default `RetryPolicy` treats it as retryable.
+    Does **not** inherit from the built-in ``TimeoutError`` (a subclass of
+    ``OSError``) so that the default ``RetryPolicy`` treats it as retryable.
 
-    Both `idle_timeout` and `run_timeout` reflect the configured policy at the
-    time of the failure (each is `None` if not configured). `kind` and
-    `timeout` identify which one fired.
+    This error is raised by the LangGraph runtime when a node exceeds either
+    its *idle* timeout (no progress made within the window) or its *run*
+    timeout (total wall-clock time for the node invocation).
+
+    Args:
+        node: Name of the node that timed out.
+        elapsed: Actual elapsed time in seconds at the point of timeout.
+        kind: Which timeout fired — ``"idle"`` or ``"run"``.
+        idle_timeout: The configured idle timeout in seconds, or ``None``
+            if ``kind`` is not ``"idle"``.
+        run_timeout: The configured run timeout in seconds, or ``None``
+            if ``kind`` is not ``"run"``.
+
+    Attributes:
+        node: Name of the node that timed out.
+        timeout: Value of the timeout that fired (seconds).
+        run_timeout: Configured run timeout in seconds, or ``None``.
+        idle_timeout: Configured idle timeout in seconds, or ``None``.
+        elapsed: Actual elapsed time in seconds at the point of failure.
+        kind: Which timeout category fired — ``"idle"`` or ``"run"``.
+
+    Raises:
+        ValueError: If ``kind`` is ``"idle"`` but ``idle_timeout`` is ``None``,
+            or ``kind`` is ``"run"`` but ``run_timeout`` is ``None``, or
+            ``kind`` is not one of the accepted literals.
+
+    Example::
+
+        from langgraph.errors import NodeTimeoutError
+
+        try:
+            graph.invoke(state)
+        except NodeTimeoutError as exc:
+            print(f"Node '{exc.node}' timed out after {exc.elapsed:.2f}s "
+                  f"(limit: {exc.timeout:.2f}s, kind: {exc.kind})")
     """
 
     node: str
