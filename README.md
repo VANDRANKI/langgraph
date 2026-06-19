@@ -77,6 +77,41 @@ To improve your LLM application development, pair LangGraph with:
 
 ---
 
+## Contributing
+
+This is a monorepo. Each library lives under `libs/` and is independently
+versioned. To contribute:
+
+1. **Clone** the repository and install the library you want to work on:
+
+   ```bash
+   cd libs/<library-name>
+   pip install -e ".[dev]"
+   ```
+
+2. **Make your changes** inside the relevant `libs/<library-name>/` directory.
+
+3. **Run the standard checks** from inside that library directory:
+
+   ```bash
+   make format   # apply code formatters
+   make lint     # run the linter
+   make test     # execute the test suite
+   ```
+
+   To run a specific test file:
+
+   ```bash
+   TEST=path/to/test_file.py make test
+   ```
+
+4. Open a pull request against `main`.  Please include a description of what
+   changed and why, and link any related issues.
+
+See [CLAUDE.md](CLAUDE.md) for detailed agent and development guidelines.
+
+---
+
 ## Acknowledgements
 
 LangGraph is inspired by [Pregel](https://research.google/pubs/pub37252/) and [Apache Beam](https://beam.apache.org/). The public interface draws inspiration from [NetworkX](https://networkx.org/documentation/latest/). LangGraph is built by LangChain Inc, the creators of LangChain, but can be used without LangChain.
