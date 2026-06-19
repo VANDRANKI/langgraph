@@ -4,6 +4,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.pyo
 *$py.class
 
 # Distribution / packaging
@@ -85,16 +86,20 @@ ENV/
 env.bak/
 venv.bak/
 
-# mypy
+# Type checkers
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# Pyre type checker
 .pyre/
+
+# Linters / formatters
+.ruff_cache/
 
 # macOS display setting files
 .DS_Store
+
+# JavaScript / Node
+node_modules/
 
 .vercel
 .turbo
