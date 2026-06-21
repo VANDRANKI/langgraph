@@ -1,3 +1,23 @@
+"""Runtime configuration helpers for LangGraph graph nodes and functional API tasks.
+
+This module exposes three public helpers — `get_config`, `get_store`, and
+`get_stream_writer` — that can be called from inside any running LangGraph
+node or `@entrypoint` task to retrieve the active `RunnableConfig`, the
+configured `BaseStore`, or the active `StreamWriter` respectively.
+
+All three functions rely on a `contextvars.ContextVar` populated by the
+PregelRunner at the start of each task execution.  They therefore raise
+`RuntimeError` when called outside of a running LangGraph context.
+
+Async caveat
+-----------
+Context-variable propagation to tasks created with `asyncio.create_task` was
+only added in Python 3.11.  When running LangGraph asynchronously on Python
+< 3.11, the context variable may not be visible inside the spawned task and
+the helpers will raise `RuntimeError`.  Use Python >= 3.11 for full async
+support.
+"""
+
 import asyncio
 import sys
 from typing import Any
@@ -11,10 +31,48 @@ from langgraph.types import StreamWriter
 
 
 def _no_op_stream_writer(c: Any) -> None:
-    pass
+    """A stream writer that silently discards all values.
+
+    Used as the default `StreamWriter` when no custom stream is configured,
+    so that node code calling `get_stream_writer()` never needs to guard
+    against a ``None`` writer.
+
+    Args:
+        c: The value to discard.  Accepts any type.
+    """
 
 
 def get_config() -> RunnableConfig:
+    """Return the active `RunnableConfig` for the currently executing LangGraph task.
+
+    This function reads the config from a `contextvars.ContextVar` that the
+    PregelRunner populates at the start of every node invocation.  It is
+    therefore only valid when called from inside a running graph node or a
+    `@task` / `@entrypoint` function.
+
+    !!! warning "Async with Python < 3.11"
+        On Python < 3.11 the context variable is **not** propagated to
+        `asyncio.create_task` coroutines.  Calling this function from an
+        async context on Python < 3.11 will raise `RuntimeError`.
+
+    Returns:
+        The `RunnableConfig` for the current execution context, including
+        all LangGraph-specific keys under the `"configurable"` key.
+
+    Raises:
+        RuntimeError: If called outside of a running LangGraph context, or
+            if called from an async context on Python < 3.11.
+
+    Example:
+        ```python
+        from langgraph.config import get_config
+
+        def my_node(state):
+            config = get_config()
+            thread_id = config["configurable"].get("thread_id")
+            return state
+        ```
+    """
     if sys.version_info < (3, 11):
         try:
             if asyncio.current_task():
