@@ -23,14 +23,77 @@
 
 Trusted by companies shaping the future of agents – including Klarna, Replit, Elastic, and more – LangGraph is a low-level orchestration framework for building, managing, and deploying long-running, stateful agents.
 
+## Installation
+
 ```bash
+# Using pip
 pip install -U langgraph
+
+# Using uv (recommended for faster installs)
+uv add langgraph
+
+# With optional LangChain integrations
+pip install -U langgraph langchain-openai
 ```
 
 > [!TIP]
 > If you're looking to quickly build agents, check out **[Deep Agents](https://docs.langchain.com/oss/python/deepagents/overview)** — a higher-level package built on LangGraph for agents that can plan, use subagents, and leverage file systems for complex tasks.
 
 For an equivalent JS/TS library, check out [LangGraph.js](https://github.com/langchain-ai/langgraphjs) and the [JS docs](https://docs.langchain.com/oss/javascript/langgraph/overview).
+
+## Quick Start
+
+The example below builds a minimal two-node graph that increments a counter and routes back to itself until a threshold is reached.
+
+```python
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
+
+
+class State(TypedDict):
+    count: int
+
+
+def increment(state: State) -> State:
+    return {"count": state["count"] + 1}
+
+
+def should_continue(state: State) -> str:
+    if state["count"] >= 3:
+        return "done"
+    return "again"
+
+
+builder = StateGraph(State)
+builder.add_node("increment", increment)
+builder.add_edge(START, "increment")
+builder.add_conditional_edges(
+    "increment",
+    should_continue,
+    {"again": "increment", "done": END},
+)
+
+graph = builder.compile()
+result = graph.invoke({"count": 0})
+print(result)  # {'count': 3}
+```
+
+To persist state across invocations (e.g. for multi-turn conversations), add a checkpointer:
+
+```python
+from langgraph.checkpoint.memory import InMemorySaver
+
+checkpointer = InMemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
+
+config = {"configurable": {"thread_id": "my-session"}}
+result = graph.invoke({"count": 0}, config)
+print(result)  # {'count': 3}
+
+# Resuming the same thread picks up from the last checkpoint
+result2 = graph.invoke({"count": 0}, config)
+print(result2)  # {'count': 6}
+```
 
 ## Why use LangGraph?
 
