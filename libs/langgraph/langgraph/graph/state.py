@@ -1036,6 +1036,25 @@ class StateGraph(Generic[StateT, ContextT, InputT, OutputT]):
         return self.add_edge(key, END)
 
     def validate(self, interrupt: Sequence[str] | None = None) -> Self:
+        """Validate the graph structure before compilation.
+
+        Checks that all edges reference nodes that exist, that the graph has a
+        valid entry point (an edge from `START`), and that any interrupt nodes
+        are present in the graph. Sets `self.compiled = True` on success so
+        subsequent mutations emit a warning.
+
+        Args:
+            interrupt: Optional list of node names that will be used as
+                interrupt points. Each name must correspond to an existing node.
+
+        Raises:
+            ValueError: If an edge references an unknown source or target node,
+                if the graph has no entry point, or if an interrupt node does
+                not exist.
+
+        Returns:
+            Self: The instance of the `StateGraph`, allowing for method chaining.
+        """
         # assemble sources
         all_sources = {src for src, _ in self._all_edges}
         for start, branches in self.branches.items():
@@ -1261,6 +1280,23 @@ class CompiledStateGraph(
     Pregel[StateT, ContextT, InputT, OutputT],
     Generic[StateT, ContextT, InputT, OutputT],
 ):
+    """An executable graph produced by compiling a `StateGraph`.
+
+    `CompiledStateGraph` implements the `Runnable` interface so it can be used
+    anywhere a LangChain `Runnable` is accepted.  Obtain an instance by calling
+    `StateGraph.compile()` — do **not** instantiate this class directly.
+
+    Typical usage::
+
+        graph = builder.compile(checkpointer=InMemorySaver())
+        result = graph.invoke({"key": "value"}, config={"configurable": {"thread_id": "1"}})
+
+    Attributes:
+        builder: The `StateGraph` that produced this compiled graph.
+        schema_to_mapper: Cache of per-schema coercion functions that convert
+            raw state dicts into the typed schema objects expected by each node.
+    """
+
     builder: StateGraph[StateT, ContextT, InputT, OutputT]
     schema_to_mapper: dict[type[Any], Callable[[Any], Any] | None]
     _output_mapper: Callable[[Any], Any] | None
@@ -1280,6 +1316,20 @@ class CompiledStateGraph(
     def get_input_jsonschema(
         self, config: RunnableConfig | None = None
     ) -> dict[str, Any]:
+        """Return a JSON Schema dict describing the graph's input format.
+
+        The schema is derived from the `input_schema` provided to `StateGraph`.
+        For Pydantic models and TypedDicts the schema reflects their field
+        definitions; for bare types a single ``__root__`` field is generated.
+
+        Args:
+            config: Optional runnable configuration (unused, present for
+                interface compatibility).
+
+        Returns:
+            A JSON Schema dictionary suitable for passing to schema validators
+            or exposing via an API spec.
+        """
         return _get_json_schema(
             typ=self.builder.input_schema,
             schemas=self.builder.schemas,
@@ -1290,6 +1340,20 @@ class CompiledStateGraph(
     def get_output_jsonschema(
         self, config: RunnableConfig | None = None
     ) -> dict[str, Any]:
+        """Return a JSON Schema dict describing the graph's output format.
+
+        The schema is derived from the `output_schema` provided to `StateGraph`.
+        For Pydantic models and TypedDicts the schema reflects their field
+        definitions; for bare types a single ``__root__`` field is generated.
+
+        Args:
+            config: Optional runnable configuration (unused, present for
+                interface compatibility).
+
+        Returns:
+            A JSON Schema dictionary suitable for passing to schema validators
+            or exposing via an API spec.
+        """
         return _get_json_schema(
             typ=self.builder.output_schema,
             schemas=self.builder.schemas,
@@ -1298,6 +1362,21 @@ class CompiledStateGraph(
         )
 
     def attach_node(self, key: str, node: StateNodeSpec[Any, ContextT] | None) -> None:
+        """Wire a node into the compiled Pregel graph.
+
+        Called internally by `StateGraph.compile()` for every node (including
+        the synthetic `START` node). Builds the channel read/write plumbing
+        that connects this node to the rest of the graph.
+
+        Args:
+            key: The node name as registered in the builder (e.g. ``"my_node"``
+                or the ``START`` sentinel).
+            node: The `StateNodeSpec` for the node, or `None` when wiring the
+                `START` pseudo-node.
+
+        Raises:
+            RuntimeError: If `node` is `None` for a non-`START` key.
+        """
         if key == START:
             output_keys = [
                 k
@@ -1404,6 +1483,25 @@ class CompiledStateGraph(
             raise RuntimeError
 
     def attach_edge(self, starts: str | Sequence[str], end: str) -> None:
+        """Wire a directed edge (or fan-in join edge) into the compiled graph.
+
+        Called internally by `StateGraph.compile()` for every edge and
+        waiting-edge defined on the builder.
+
+        For a single ``starts`` value, a `ChannelWrite` is appended to the
+        source node's writers so it publishes a trigger to the destination
+        node's ``branch:to:<end>`` channel.
+
+        For a sequence of ``starts`` values (fan-in), a `NamedBarrierValue`
+        channel is created that waits for all source nodes to publish before
+        releasing the destination node.
+
+        Args:
+            starts: The source node name, or a sequence of source node names
+                for a fan-in (join) edge.
+            end: The destination node name. If ``END``, no channel write is
+                added (the graph simply terminates).
+        """
         if isinstance(starts, str):
             # subscribe to start channel
             if end != END:
@@ -1432,6 +1530,24 @@ class CompiledStateGraph(
     def attach_branch(
         self, start: str, name: str, branch: BranchSpec, *, with_reader: bool = True
     ) -> None:
+        """Wire a conditional branch into the compiled graph.
+
+        Called internally by `StateGraph.compile()` for every conditional edge
+        registered via `add_conditional_edges` or `set_conditional_entry_point`.
+
+        Builds a reader that snapshots the current state in the correct schema
+        for the branch callable, then appends a branch publisher to the source
+        node's writers that dispatches the conditional routing at runtime.
+
+        Args:
+            start: The source node name from which the branch departs.
+            name: The name of the branch condition (used for de-duplication).
+            branch: The `BranchSpec` that encapsulates the routing callable
+                and optional path map.
+            with_reader: Whether to attach a state-snapshot reader to the
+                branch. Set to `False` only when the branch already has its
+                own reader (e.g. when called from subgraph wiring code).
+        """
         def get_writes(
             packets: Sequence[str | Send], static: bool = False
         ) -> Sequence[ChannelWriteEntry | Send]:
