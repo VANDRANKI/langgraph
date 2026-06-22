@@ -76,6 +76,8 @@ __pypackages__/
 
 # Environments
 .env
+.env.local
+.env.test
 .envrc
 .venv
 .venvs
@@ -93,8 +95,14 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Ruff
+.ruff_cache/
+
 # macOS display setting files
 .DS_Store
+
+# Node
+node_modules/
 
 .vercel
 .turbo
