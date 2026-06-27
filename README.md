@@ -32,6 +32,37 @@ pip install -U langgraph
 
 For an equivalent JS/TS library, check out [LangGraph.js](https://github.com/langchain-ai/langgraphjs) and the [JS docs](https://docs.langchain.com/oss/javascript/langgraph/overview).
 
+## Quickstart
+
+Here is a minimal example to get you started. The following snippet builds a simple two-node graph that echoes a greeting, then ends:
+
+```python
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
+
+
+class State(TypedDict):
+    message: str
+
+
+def greet(state: State) -> State:
+    return {"message": f"Hello, {state['message']}!"}
+
+
+graph = (
+    StateGraph(State)
+    .add_node("greet", greet)
+    .add_edge(START, "greet")
+    .add_edge("greet", END)
+    .compile()
+)
+
+result = graph.invoke({"message": "world"})
+print(result["message"])  # Hello, world!
+```
+
+See the [LangGraph Quickstart](https://docs.langchain.com/oss/python/langgraph/quickstart) guide for more complete examples covering persistence, human-in-the-loop, and streaming.
+
 ## Why use LangGraph?
 
 LangGraph provides low-level supporting infrastructure for *any* long-running, stateful workflow or agent:
@@ -74,6 +105,34 @@ To improve your LLM application development, pair LangGraph with:
 - **[Case studies](https://www.langchain.com/built-with-langgraph)** – Hear how industry leaders use LangGraph to ship AI applications at scale.
 - [Contributing Guide](https://docs.langchain.com/oss/python/contributing/overview) – Learn how to contribute to LangChain projects and find good first issues.
 - [Code of Conduct](https://github.com/langchain-ai/langchain/?tab=coc-ov-file) – Our community guidelines and standards for participation.
+
+---
+
+## Contributing
+
+We welcome contributions! Here is how to get started:
+
+1. **Fork** this repository and create a feature branch from `main`.
+2. **Set up your environment** — each library lives under `libs/`. Run the following inside the relevant library directory:
+
+   ```bash
+   # Install development dependencies (requires uv)
+   make install
+   ```
+
+3. **Make your changes** and add tests under the library's `tests/` directory.
+4. **Run the full check suite** before opening a PR:
+
+   ```bash
+   make format   # auto-format with ruff
+   make lint     # lint + type-check
+   make test     # run the test suite
+   ```
+
+5. **Open a pull request** against `main`. Follow the PR template and link any related issues.
+
+> [!NOTE]
+> Please read the full [Contributing Guide](https://docs.langchain.com/oss/python/contributing/overview) before submitting large changes. It covers commit message conventions, branch naming, and the release process.
 
 ---
 
