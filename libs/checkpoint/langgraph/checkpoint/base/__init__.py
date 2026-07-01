@@ -172,7 +172,7 @@ class BaseCheckpointSaver(Generic[V]):
     it, the checkpointer cannot save state, resume from interrupts, or enable
     time-travel debugging.
 
-    How you choose ``thread_id`` depends on your use case:
+    How you choose `thread_id` depends on your use case:
 
     - **Single-shot workflows**: Use a unique ID (e.g., uuid4) for each run when
         executions are independent.
