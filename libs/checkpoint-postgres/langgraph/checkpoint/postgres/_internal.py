@@ -12,6 +12,22 @@ Conn = Connection[DictRow] | ConnectionPool[Connection[DictRow]]
 
 @contextmanager
 def get_connection(conn: Conn) -> Iterator[Connection[DictRow]]:
+    """Yield a usable `Connection` from either a `Connection` or a `ConnectionPool`.
+
+    If `conn` is already a `Connection`, it is yielded as-is (the caller retains
+    ownership and is responsible for closing it). If `conn` is a `ConnectionPool`,
+    a connection is checked out of the pool for the duration of the `with` block
+    and automatically returned to the pool afterward.
+
+    Args:
+        conn: Either a `Connection` or a `ConnectionPool` to draw a connection from.
+
+    Yields:
+        A `Connection[DictRow]` usable for the duration of the `with` block.
+
+    Raises:
+        TypeError: If `conn` is neither a `Connection` nor a `ConnectionPool`.
+    """
     if isinstance(conn, Connection):
         yield conn
     elif isinstance(conn, ConnectionPool):
