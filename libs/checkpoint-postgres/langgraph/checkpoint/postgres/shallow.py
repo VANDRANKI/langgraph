@@ -230,7 +230,7 @@ class ShallowPostgresSaver(BasePostgresSaver):
                 yield cls(conn)
 
     def setup(self) -> None:
-        """Set up the checkpoint database asynchronously.
+        """Set up the checkpoint database.
 
         This method creates the necessary tables in the Postgres database if they don't
         already exist and runs database migrations. It MUST be called directly by the user
