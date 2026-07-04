@@ -69,7 +69,8 @@ class EncryptedSerializer(SerializerProtocol):
                 return "aes", cipher.nonce + tag + ciphertext
 
             def decrypt(self, ciphername: str, ciphertext: bytes) -> bytes:
-                assert ciphername == "aes", f"Unsupported cipher: {ciphername}"
+                if ciphername != "aes":
+                    raise ValueError(f"Unsupported cipher: {ciphername}")
                 nonce = ciphertext[:16]
                 tag = ciphertext[16:32]
                 actual_ciphertext = ciphertext[32:]

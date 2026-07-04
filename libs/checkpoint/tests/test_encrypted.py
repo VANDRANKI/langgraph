@@ -424,6 +424,19 @@ class TestEncryptedSerializerUnencryptedFallback:
         assert result == obj
 
 
+def test_pycryptodome_aes_decrypt_rejects_unsupported_cipher() -> None:
+    """The AES cipher's decrypt() must raise, not assert, on a mismatched cipher name.
+
+    `decrypt` previously used a bare `assert`, which Python strips when run with
+    `-O`/`PYTHONOPTIMIZE`, silently disabling the check. It must raise a `ValueError`
+    instead so the guard cannot be optimized away.
+    """
+    encrypted = EncryptedSerializer.from_pycryptodome_aes(key=b"1234567890123456")
+
+    with pytest.raises(ValueError, match="Unsupported cipher"):
+        encrypted.cipher.decrypt("not-aes", b"irrelevant-ciphertext")
+
+
 def test_with_allowlist_uses_copy_protocol() -> None:
     class CopyAwareSaver(BaseCheckpointSaver[str]):
         def __init__(self) -> None:
