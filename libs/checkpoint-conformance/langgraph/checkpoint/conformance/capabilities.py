@@ -4,12 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
 
 from langgraph.checkpoint.base import BaseCheckpointSaver
-
-if TYPE_CHECKING:
-    pass
 
 
 class Capability(str, Enum):
