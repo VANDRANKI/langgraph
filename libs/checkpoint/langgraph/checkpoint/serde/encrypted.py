@@ -24,6 +24,7 @@ class EncryptedSerializer(SerializerProtocol):
         return f"{typ}+{ciphername}", ciphertext
 
     def loads_typed(self, data: tuple[str, bytes]) -> Any:
+        """Decrypt the bytes and deserialize the resulting `(type, bytes)` tuple."""
         enc_cipher, ciphertext = data
         # unencrypted data
         if "+" not in enc_cipher:
@@ -69,7 +70,8 @@ class EncryptedSerializer(SerializerProtocol):
                 return "aes", cipher.nonce + tag + ciphertext
 
             def decrypt(self, ciphername: str, ciphertext: bytes) -> bytes:
-                assert ciphername == "aes", f"Unsupported cipher: {ciphername}"
+                if ciphername != "aes":
+                    raise ValueError(f"Unsupported cipher: {ciphername}")
                 nonce = ciphertext[:16]
                 tag = ciphertext[16:32]
                 actual_ciphertext = ciphertext[32:]
