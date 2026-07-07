@@ -9,7 +9,13 @@ from langgraph.checkpoint.serde.base import SerializerProtocol
 
 
 class InMemoryCache(BaseCache[ValueT]):
-    def __init__(self, *, serde: SerializerProtocol | None = None):
+    """In-memory cache backed by a plain dict, guarded by a re-entrant lock.
+
+    Entries are not proactively evicted on expiry; expired entries are
+    removed lazily the next time they are looked up via `get`/`aget`.
+    """
+
+    def __init__(self, *, serde: SerializerProtocol | None = None) -> None:
         super().__init__(serde=serde)
         self._cache: dict[Namespace, dict[str, tuple[str, bytes, float | None]]] = {}
         self._lock = threading.RLock()
