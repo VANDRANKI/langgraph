@@ -781,7 +781,15 @@ class SqliteStore(BaseSqliteStore, BaseStore):
         ) = None,
         index: SqliteIndexConfig | None = None,
         ttl: TTLConfig | None = None,
-    ):
+    ) -> None:
+        """Initialize the SQLite store.
+
+        Args:
+            conn: The SQLite database connection.
+            deserializer: Optional custom deserializer function for values.
+            index: Optional vector search configuration.
+            ttl: Optional time-to-live configuration.
+        """
         super().__init__()
         self._deserializer = deserializer
         self.conn = conn
