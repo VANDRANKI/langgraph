@@ -232,7 +232,7 @@ def _is_pydantic_model(typ: Any) -> bool:
         return True
     try:
         from pydantic.v1 import BaseModel as BaseModelV1
-    except Exception:
+    except ImportError:
         return False
     return issubclass(typ, BaseModelV1)
 
