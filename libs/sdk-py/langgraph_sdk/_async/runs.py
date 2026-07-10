@@ -243,7 +243,7 @@ class RunsClient:
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
-            interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
+            interrupt_after: Nodes to interrupt immediately after they get executed.
             feedback_keys: Feedback keys to assign to run.
             on_disconnect: The disconnect mode to use.
                 Must be one of 'cancel' or 'continue'.
@@ -464,7 +464,7 @@ class RunsClient:
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
-            interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
+            interrupt_after: Nodes to interrupt immediately after they get executed.
             webhook: Webhook to call after LangGraph API call is done.
             multitask_strategy: Multitask strategy to use.
                 Must be one of 'reject', 'interrupt', 'rollback', or 'enqueue'.
@@ -718,7 +718,7 @@ class RunsClient:
             checkpoint: The checkpoint to resume from.
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
-            interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
+            interrupt_after: Nodes to interrupt immediately after they get executed.
             webhook: Webhook to call after LangGraph API call is done.
             on_disconnect: The disconnect mode to use.
                 Must be one of 'cancel' or 'continue'.

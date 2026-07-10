@@ -88,7 +88,7 @@ class SyncCronClient:
                 !!! version-added "Added in version 0.6.0"
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
-            interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
+            interrupt_after: Nodes to interrupt immediately after they get executed.
             webhook: Webhook to call after LangGraph API call is done.
             multitask_strategy: Multitask strategy to use.
                 Must be one of 'reject', 'interrupt', 'rollback', or 'enqueue'.
@@ -200,7 +200,7 @@ class SyncCronClient:
                 !!! version-added "Added in version 0.6.0"
             checkpoint_during: (deprecated) Whether to checkpoint during the run (or only at the end/interruption).
             interrupt_before: Nodes to interrupt immediately before they get executed.
-            interrupt_after: Nodes to Nodes to interrupt immediately after they get executed.
+            interrupt_after: Nodes to interrupt immediately after they get executed.
             webhook: Webhook to call after LangGraph API call is done.
             on_run_completed: What to do with the thread after the run completes.
                 Must be one of 'delete' (default) or 'keep'. 'delete' removes the thread
