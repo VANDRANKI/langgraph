@@ -102,7 +102,7 @@ class CronClient:
                 Must be one of 'reject', 'interrupt', 'rollback', or 'enqueue'.
             end_time: The time to stop running the cron job. If not provided, the cron job will run indefinitely.
             enabled: Whether the cron job is enabled or not.
-            timezone: IANA timezone for the cron schedule. Accepts a string (e.g. 'America/New_York') or a ``datetime.tzinfo`` instance (e.g. ``ZoneInfo("America/New_York")``).
+            timezone: IANA timezone for the cron schedule. Accepts a string (e.g. 'America/New_York') or a `datetime.tzinfo` instance (e.g. `ZoneInfo("America/New_York")`).
             stream_mode: The stream mode(s) to use.
             stream_subgraphs: Whether to stream output from subgraphs.
             stream_resumable: Whether to persist the stream chunks in order to resume the stream later.
@@ -220,7 +220,7 @@ class CronClient:
                 Must be one of 'reject', 'interrupt', 'rollback', or 'enqueue'.
             end_time: The time to stop running the cron job. If not provided, the cron job will run indefinitely.
             enabled: Whether the cron job is enabled or not.
-            timezone: IANA timezone for the cron schedule. Accepts a string (e.g. 'America/New_York') or a ``datetime.tzinfo`` instance (e.g. ``ZoneInfo("America/New_York")``).
+            timezone: IANA timezone for the cron schedule. Accepts a string (e.g. 'America/New_York') or a `datetime.tzinfo` instance (e.g. `ZoneInfo("America/New_York")`).
             stream_mode: The stream mode(s) to use.
             stream_subgraphs: Whether to stream output from subgraphs.
             stream_resumable: Whether to persist the stream chunks in order to resume the stream later.
@@ -358,7 +358,7 @@ class CronClient:
                 after execution. 'keep' creates a new thread for each execution but does not
                 clean them up.
             enabled: Enable or disable the cron job.
-            timezone: IANA timezone for the cron schedule. Accepts a string (e.g. 'America/New_York') or a ``datetime.tzinfo`` instance (e.g. ``ZoneInfo("America/New_York")``).
+            timezone: IANA timezone for the cron schedule. Accepts a string (e.g. 'America/New_York') or a `datetime.tzinfo` instance (e.g. `ZoneInfo("America/New_York")`).
             stream_mode: The stream mode(s) to use.
             stream_subgraphs: Whether to stream output from subgraphs.
             stream_resumable: Whether to persist the stream chunks in order to resume the stream later.
