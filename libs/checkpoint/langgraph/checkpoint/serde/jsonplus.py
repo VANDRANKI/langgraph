@@ -863,6 +863,7 @@ class InvalidModuleError(Exception):
     """Exception raised when a module is not in the allowlist."""
 
     def __init__(self, message: str):
+        super().__init__(message)
         self.message = message
 
 
