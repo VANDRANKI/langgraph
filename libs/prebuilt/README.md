@@ -112,6 +112,6 @@ def my_graph_function():
     # Send the interrupt request inside a list, and extract the first response
     response = interrupt([request])[0]
     if response['type'] == "response":
-        # Do something with the response
+        ...  # Do something with the response
     ...
 ```
