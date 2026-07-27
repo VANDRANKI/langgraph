@@ -1,8 +1,8 @@
 """Key/value cache for use inside LangGraph deployments.
 
-Thin wrapper around ``langgraph_api.cache``.
+Thin wrapper around `langgraph_api.cache`.
 Values must be JSON-serializable (dicts, lists, strings, numbers, booleans,
-``None``).
+`None`).
 """
 
 from __future__ import annotations
@@ -56,7 +56,7 @@ __all__ = [
 async def cache_get(key: str) -> Any | None:
     """Get a value from the cache.
 
-    Returns the deserialized value, or ``None`` if the key is missing or expired.
+    Returns the deserialized value, or `None` if the key is missing or expired.
 
     Requires Agent Server runtime version 0.7.29 or later.
     """
@@ -74,7 +74,7 @@ async def cache_set(key: str, value: Any, *, ttl: timedelta | None = None) -> No
     Args:
         key: The cache key.
         value: The value to cache (must be JSON-serializable).
-        ttl: Optional time-to-live. Capped at 1 day; ``None`` or zero
+        ttl: Optional time-to-live. Capped at 1 day; `None` or zero
             defaults to 1 day.
 
     Requires Agent Server runtime version 0.7.29 or later.
@@ -104,7 +104,7 @@ async def swr(
         key: Cache key.
         loader: Async callable that fetches the value on miss/revalidation.
         fresh_for: How long a cached value is considered fresh (no revalidation).
-            Defaults to ``timedelta(0)`` so every access triggers a background
+            Defaults to `timedelta(0)` so every access triggers a background
             revalidate while still returning the cached value instantly. Values
             above :data:`MAX_CACHE_TTL` are clamped to the backend maximum.
         max_age: Total lifetime of a cached entry. After this, the next access
@@ -112,19 +112,19 @@ async def swr(
             default). Values above :data:`MAX_CACHE_TTL` are clamped to the
             backend maximum.
         model: Optional Pydantic model class. When provided, values are
-            serialized via ``model_dump(mode="json")`` before storage and
-            deserialized via ``model.model_validate()`` on read.
+            serialized via `model_dump(mode="json")` before storage and
+            deserialized via `model.model_validate()` on read.
 
     Returns:
-        An :class:`SWRResult` with ``.value``, ``.status``, and an async
-        ``.mutate()`` method.
+        An :class:`SWRResult` with `.value`, `.status`, and an async
+        `.mutate()` method.
 
     Semantics:
-    - cache miss: await ``loader()``, store the value, return it
+    - cache miss: await `loader()`, store the value, return it
     - fresh hit (age < fresh_for): return the cached value
     - stale hit (fresh_for <= age < max_age): return the cached value
       immediately and trigger a best-effort background refresh
-    - expired (age >= max_age): await ``loader()``, store the value, return it
+    - expired (age >= max_age): await `loader()`, store the value, return it
     """
     if _api_swr is None:
         raise RuntimeError(
