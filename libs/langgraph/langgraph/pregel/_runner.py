@@ -712,7 +712,7 @@ def _call(
     submit: weakref.ref[Submit],
 ) -> concurrent.futures.Future[Any]:
     if inspect.iscoroutinefunction(func):
-        raise RuntimeError("In an sync context async tasks cannot be called")
+        raise RuntimeError("In a sync context, async tasks cannot be called")
 
     fut: concurrent.futures.Future | None = None
     # schedule PUSH tasks, collect futures
