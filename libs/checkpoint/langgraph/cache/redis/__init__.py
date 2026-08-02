@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 from collections.abc import Mapping, Sequence
 from typing import Any
 
 from langgraph.cache.base import BaseCache, FullKey, Namespace, ValueT
 from langgraph.checkpoint.serde.base import SerializerProtocol
+
+logger = logging.getLogger(__name__)
 
 
 class RedisCache(BaseCache[ValueT]):
@@ -62,6 +65,7 @@ class RedisCache(BaseCache[ValueT]):
             raw_values = self.redis.mget(redis_keys)
         except Exception:
             # If Redis is unavailable, return empty dict
+            logger.warning("Failed to read from Redis cache", exc_info=True)
             return {}
 
         values: dict[FullKey, ValueT] = {}
@@ -73,6 +77,11 @@ class RedisCache(BaseCache[ValueT]):
                     values[keys[i]] = self.serde.loads_typed((encoding.decode(), data))
                 except Exception:
                     # Skip corrupted entries
+                    logger.warning(
+                        "Failed to deserialize cached value for key %s",
+                        keys[i],
+                        exc_info=True,
+                    )
                     continue
 
         return values
@@ -104,8 +113,8 @@ class RedisCache(BaseCache[ValueT]):
         try:
             pipe.execute()
         except Exception:
-            # Silently fail if Redis is unavailable
-            pass
+            # Don't propagate cache errors, but surface them for debugging
+            logger.warning("Failed to write to Redis cache", exc_info=True)
 
     async def aset(self, mapping: Mapping[FullKey, tuple[ValueT, int | None]]) -> None:
         """Asynchronously set the cached values for the given keys and TTLs."""
@@ -135,8 +144,8 @@ class RedisCache(BaseCache[ValueT]):
                 if keys_to_delete:
                     self.redis.delete(*keys_to_delete)
         except Exception:
-            # Silently fail if Redis is unavailable
-            pass
+            # Don't propagate cache errors, but surface them for debugging
+            logger.warning("Failed to clear Redis cache", exc_info=True)
 
     async def aclear(self, namespaces: Sequence[Namespace] | None = None) -> None:
         """Asynchronously delete the cached values for the given namespaces.
