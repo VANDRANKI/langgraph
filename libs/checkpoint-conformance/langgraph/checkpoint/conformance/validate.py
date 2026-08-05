@@ -51,9 +51,9 @@ async def validate(
         capabilities: If given, only run tests for these capability names.
             Otherwise, auto-detect and run all applicable tests.
         progress: Optional progress callbacks for incremental output.
-            Use ``ProgressCallbacks.default()`` for dot-style,
-            ``ProgressCallbacks.verbose()`` for per-test output, or
-            ``None`` / ``ProgressCallbacks.quiet()`` for silent mode.
+            Use `ProgressCallbacks.default()` for dot-style,
+            `ProgressCallbacks.verbose()` for per-test output, or
+            `None` / `ProgressCallbacks.quiet()` for silent mode.
 
     Returns:
         A CapabilityReport with per-capability results.
