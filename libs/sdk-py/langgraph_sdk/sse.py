@@ -18,7 +18,7 @@ class BytesLineDecoder:
     """
     Handles incrementally reading lines from text.
 
-    Has the same behaviour as the stdllib bytes splitlines,
+    Has the same behaviour as the stdlib bytes splitlines,
     but handling the input iteratively.
     """
 
