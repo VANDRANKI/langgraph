@@ -37,7 +37,7 @@ class ProgressCallbacks:
 
     @classmethod
     def default(cls) -> ProgressCallbacks:
-        """Dot-style progress: ``.`` per pass, ``F`` per fail."""
+        """Dot-style progress: `.` per pass, `F` per fail."""
 
         def _cap_start(capability: str, detected: bool) -> None:
             if detected:
