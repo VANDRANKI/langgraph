@@ -3,7 +3,8 @@
 import click
 
 
-def clean_empty_lines(input_str: str):
+def clean_empty_lines(input_str: str) -> str:
+    """Return `input_str` with all blank lines removed."""
     return "\n".join(filter(None, input_str.splitlines()))
 
 
