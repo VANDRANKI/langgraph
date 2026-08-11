@@ -115,7 +115,7 @@ def _get_run_metadata_from_response(
 def _sse_to_v2_dict(event: str, data: Any) -> dict[str, Any] | None:
     """Convert an SSE event+data pair into a v2 stream part dict.
 
-    Returns None for ``end`` events (signals end of stream).
+    Returns None for `end` events (signals end of stream).
     """
     if event == "end":
         return None
@@ -135,10 +135,10 @@ def _resolve_timezone(tz: str | tzinfo | ZoneInfo | None) -> str | None:
 
     Accepts:
         - A string (returned as-is, assumed to be an IANA timezone name)
-        - A ``datetime.tzinfo`` instance (e.g. ``zoneinfo.ZoneInfo("America/New_York")``,
-          ``datetime.timezone.utc``). The ``key`` attribute is used if available,
-          otherwise ``tzname(None)`` is used.
-        - ``None`` (returned as ``None``)
+        - A `datetime.tzinfo` instance (e.g. `zoneinfo.ZoneInfo("America/New_York")`,
+          `datetime.timezone.utc`). The `key` attribute is used if available,
+          otherwise `tzname(None)` is used.
+        - `None` (returned as `None`)
     """
     if tz is None or isinstance(tz, str):
         return tz
