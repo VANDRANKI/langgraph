@@ -56,7 +56,10 @@ class EncryptedSerializer(SerializerProtocol):
                 raise ValueError("LANGGRAPH_AES_KEY environment variable is not set.")
             key = key_str.encode()
             if len(key) not in (16, 24, 32):
-                raise ValueError("LANGGRAPH_AES_KEY must be 16, 24, or 32 bytes long.")
+                raise ValueError(
+                    "LANGGRAPH_AES_KEY must be 16, 24, or 32 bytes long, "
+                    f"got {len(key)} bytes."
+                )
 
         # set default mode to EAX if not provided
         if kwargs.get("mode") is None:
