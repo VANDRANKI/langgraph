@@ -35,7 +35,7 @@ class ReplayState:
         """Return True the first time a subgraph namespace is seen.
 
         The task-id suffix is stripped so that the same logical subgraph
-        (e.g. ``"sub_node"``) is recognized across loop iterations even
+        (e.g. `"sub_node"`) is recognized across loop iterations even
         though each iteration has a different task id.
         """
         # "sub_node:task_id" -> "sub_node"

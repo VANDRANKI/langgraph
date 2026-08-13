@@ -193,7 +193,7 @@ class GraphRunStream:
         return iter(self._mux._events)
 
     def interleave(self, *names: str) -> Iterator[tuple[str, Any]]:
-        """Iterate multiple projections in arrival order, yielding ``(name, item)``.
+        """Iterate multiple projections in arrival order, yielding `(name, item)`.
 
         Items are ordered by a monotonic push stamp assigned when each
         transformer pushes into its `StreamChannel`. This gives strict
@@ -201,10 +201,10 @@ class GraphRunStream:
 
         Args:
             *names: Projection keys to interleave. Must match keys in
-                ``extensions``.
+                `extensions`.
 
         Yields:
-            ``(name, item)`` tuples in arrival order across the named
+            `(name, item)` tuples in arrival order across the named
             projections.
 
         Each named channel is locked for the duration of iteration and
