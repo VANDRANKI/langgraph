@@ -60,7 +60,7 @@ _warned_blocked_types: set[tuple[str, str]] = set()
 def _is_safe_json_type(id_list: list[str]) -> bool:
     """Return True if an lc=2 id refers to a type in SAFE_MSGPACK_TYPES.
 
-    Safe types bypass the ``allowed_json_modules`` gate so that old "json" format
+    Safe types bypass the `allowed_json_modules` gate so that old "json" format
     checkpoints (written before the msgpack migration) can be resumed without
     requiring users to configure an explicit allowlist.
     """
@@ -89,9 +89,9 @@ class JsonPlusSerializer(SerializerProtocol):
         python objects. If an attacker can write directly to your checkpoint database,
         they may be able to trigger code execution when data is deserialized.
 
-        Set the environment variable ``LANGGRAPH_STRICT_MSGPACK=true`` to restrict
-        deserialization to a built-in allowlist of safe types.  You can also pass
-        an explicit ``allowed_msgpack_modules`` to the constructor.
+        Set the environment variable `LANGGRAPH_STRICT_MSGPACK=true` to restrict
+        deserialization to a built-in allowlist of safe types. You can also pass
+        an explicit `allowed_msgpack_modules` to the constructor.
     """
 
     def __init__(
