@@ -12,6 +12,7 @@ from collections.abc import Callable, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import BinaryIO
 
 import click
 import click.exceptions
@@ -599,12 +600,12 @@ _UPLOAD_TIMEOUT_SECONDS = 300
 class _ProgressReader:
     """File-like wrapper that displays upload progress via click."""
 
-    def __init__(self, fobj, file_size: int):
+    def __init__(self, fobj: BinaryIO, file_size: int):
         self._fobj = fobj
         self._file_size = file_size
         self._uploaded = 0
 
-    def read(self, size=-1):
+    def read(self, size: int = -1) -> bytes:
         data = self._fobj.read(size)
         if data:
             self._uploaded += len(data)
@@ -617,7 +618,7 @@ class _ProgressReader:
             )
         return data
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self._file_size
 
 
