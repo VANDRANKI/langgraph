@@ -374,11 +374,11 @@ class NodeBuilder:
         )
 
 
-# Kwargs that ``stream_events(version="v3")`` / ``astream_events(version="v3")``
-# manage internally and must not be overridden by callers. ``stream_mode`` is
-# derived from the transformer mux; ``subgraphs`` is forced True so nested
+# Kwargs that `stream_events(version="v3")` / `astream_events(version="v3")`
+# manage internally and must not be overridden by callers. `stream_mode` is
+# derived from the transformer mux; `subgraphs` is forced True so nested
 # namespaces flow through scoped muxes. Forwarding either to the inner
-# ``stream(...)`` would silently break v3's invariants, so we raise instead.
+# `stream(...)` would silently break v3's invariants, so we raise instead.
 _V3_INVARIANT_KWARGS: tuple[str, ...] = ("stream_mode", "subgraphs")
 
 
@@ -3482,10 +3482,10 @@ class Pregel(
     ) -> Any:
         """Internal v3 sync streaming implementation. Public entry: stream_events(version='v3').
 
-        Extra keyword arguments are forwarded to the underlying ``stream(...)``
-        call. The dispatcher in ``stream_events`` rejects ``stream_mode`` and
-        ``subgraphs`` since v3 owns them (``stream_mode`` is derived from the
-        transformer mux; ``subgraphs`` is always True so nested namespaces
+        Extra keyword arguments are forwarded to the underlying `stream(...)`
+        call. The dispatcher in `stream_events` rejects `stream_mode` and
+        `subgraphs` since v3 owns them (`stream_mode` is derived from the
+        transformer mux; `subgraphs` is always True so nested namespaces
         flow through scoped muxes).
 
         !!! warning
@@ -3538,10 +3538,10 @@ class Pregel(
     ) -> Any:
         """Internal v3 async streaming implementation. Public entry: astream_events(version='v3').
 
-        Extra keyword arguments are forwarded to the underlying ``astream(...)``
-        call. The dispatcher in ``astream_events`` rejects ``stream_mode`` and
-        ``subgraphs`` since v3 owns them (``stream_mode`` is derived from the
-        transformer mux; ``subgraphs`` is always True so nested namespaces
+        Extra keyword arguments are forwarded to the underlying `astream(...)`
+        call. The dispatcher in `astream_events` rejects `stream_mode` and
+        `subgraphs` since v3 owns them (`stream_mode` is derived from the
+        transformer mux; `subgraphs` is always True so nested namespaces
         flow through scoped muxes).
 
         !!! warning
